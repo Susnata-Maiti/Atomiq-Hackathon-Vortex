@@ -11,23 +11,23 @@ A commercial bank faces a strategic marketing optimization challenge: randomly c
 
 **Vortex** delivers a mathematically rigorous, three-stage connected hybrid quantum-classical pipeline:
 1. **Stage 1 (Predict):** A hybrid quantum-classical machine learning classifier fusing a **Qiskit ZZFeatureMap Quantum Kernel Support Vector Classifier (QSVC)** with a **Calibrated Logistic Regression** baseline. Evaluated strictly via **5-Fold Stratified Cross-Validation** on training data only (zero test set leakage) to rank 100 test prospects and isolate the top 10 candidates.
-2. **Stage 2 (Select):** A constrained binary optimization engine formulating a Quadratic Unconstrained Binary Optimization (**QUBO**) and Ising Hamiltonian solved via the **Quantum Approximate Optimization Algorithm (QAOA)** ($p=2$ layers) and benchmarked against an exact classical combinatorial solver ($\binom{10}{6} = 210$ combinations). It achieves an **optimality gap of 0.000000**, finding the true global optimum while fully satisfying budget and capacity limits.
+2. **Stage 2 (Select):** A constrained binary optimization engine formulating a Quadratic Unconstrained Binary Optimization (**QUBO**) and Ising Hamiltonian solved via the **Quantum Approximate Optimization Algorithm (QAOA)** ($p=2$ layers) and benchmarked against an exact classical combinatorial solver ($\binom{10}{6} = 210$ combinations). It achieves an **optimality gap of 0.3231** (1.12% relative gap), finding a near-optimal solution yielding **\$28.46** expected net value (vs. \$28.78 classical global optimum) while fully satisfying budget and capacity limits.
 3. **Stage 3 (Simulate):** A 6-qubit quantum circuit using **quantum amplitude encoding** ($R_y(\theta_i)$ rotations) to simulate the probability that at least 3 out of the 6 selected customers subscribe. Validated against an **exact analytical Poisson Binomial calculation** ($2^6 = 64$ basis states) and a **100,000-trial classical Monte Carlo simulation**.
 
 ### Final Challenge Deliverables Summary
 
 | Parameter | Vortex Value | Validation & Benchmark |
 | :--- | :--- | :--- |
-| **Stage 1 Top 10 Candidates** | `C0019, C0322, C0345, C0205, C0112, C0326, C0139, C0128, C0252, C0258` | Top probabilities: 22.39% to 37.67% |
-| **Stage 2 Final 6 Selected to Contact** | **`C0322, C0345, C0205, C0139, C0252, C0258`** | Validated feasible ($K=6$ from top 10) |
-| **Total Campaign Budget Consumed** | **12.0 units** | $\le 25.0$ Budget Limit (**Feasible**) |
-| **Total Operational Capacity Consumed** | **12.0 units** | $\le 22.0$ Capacity Limit (**Feasible**) |
-| **Expected Net Campaign Value ($Z$)** | **$26.85** | **Exact Classical Global Optimum ($26.85)** |
-| **Stage 2 Optimality Gap ($Z_{\text{opt}} - Z_{\text{QAOA}}$)** | **0.000000** | **Global Optimum Achieved via QAOA** |
-| **Stage 3 Exact Analytical Probability $P(\ge 3)$** | **17.2233%** | Poisson Binomial exact reference |
-| **Stage 3 Quantum Estimate (Ideal Noiseless)** | **17.8400%** | $\Delta = 0.006167$ ($1.63\sigma$ shot noise) |
-| **Stage 3 Quantum Estimate (Noisy Mitigated)** | **17.7941%** | $\Delta = 0.005708$ (Readout Error Mitigated) |
-| **Stage 3 Monte Carlo Estimate (100k Trials)** | **17.2620%** | $\Delta = 0.000387$ |
+| **Stage 1 Top 10 Candidates** | `C0170, C0134, C0208, C0327, C0205, C0053, C0372, C0338, C0272, C0005` | Top probabilities: 22.39% to 37.67% |
+| **Stage 2 Final 6 Selected to Contact** | **`C0170, C0327, C0205, C0372, C0272, C0005`** | Validated feasible ($K=6$ from top 10) |
+| **Total Campaign Budget Consumed** | **10.0 units** | $\le 25.0$ Budget Limit (**Feasible**) |
+| **Total Operational Capacity Consumed** | **13.0 units** | $\le 22.0$ Capacity Limit (**Feasible**) |
+| **Expected Net Campaign Value ($Z$)** | **\$28.46** | **Classical Global Optimum: \$28.78** |
+| **Stage 2 Optimality Gap ($Z_{\text{opt}} - Z_{\text{QAOA}}$)** | **0.3231** (1.12% rel. gap) | **High-Value Feasible Portfolio via QAOA** |
+| **Stage 3 Exact Analytical Probability $P(\ge 3)$** | **18.6801%** | Poisson Binomial exact reference |
+| **Stage 3 Quantum Estimate (Ideal Noiseless)** | **19.3100%** | $\Delta = 0.006299$ ($1.62\sigma$ shot noise) |
+| **Stage 3 Quantum Estimate (Noisy Mitigated)** | **19.2745%** | $\Delta = 0.005944$ (Readout Error Mitigated) |
+| **Stage 3 Monte Carlo Estimate (100k Trials)** | **18.7700%** | $\Delta = 0.000899$ |
 
 ---
 
@@ -69,7 +69,7 @@ Subject to: K = 6, Budget <= 25, Capacity <= 22
          v                                     v
  [QUBO / Ising Formulation]           [Exact Classical Solver]
  min H(x) = -sum(V_i x_i) + P_k (sum x_i - 6)^2  Brute-force over all 210 combos
- + P_budget + P_capacity              Global optimum: Z* = $26.85
+ + P_budget + P_capacity              Global optimum: Z* = $28.78
          |                                     |
          v                                     |
  [QAOA Circuit (p=2 layers)]                   |
@@ -78,8 +78,8 @@ Subject to: K = 6, Budget <= 25, Capacity <= 22
          +-----------------+-------------------+
                            |
                            v
-                [Zero Optimality Gap Verified]
-                Selected: C0322, C0345, C0205, C0139, C0252, C0258
+                [Near-Optimal QAOA Solution]
+                Selected: C0170, C0327, C0205, C0372, C0272, C0005
                            |
 +--------------------------+
 |
@@ -94,8 +94,8 @@ where theta_i = 2 * arcsin(sqrt(p_i))
          v                                   v                                   v
  [AerSimulator (10,000 shots)]       [Poisson Binomial Exact]            [Monte Carlo (100k)]
  Counts with Hamming weight >= 3     sum_{w(b) >= 3} prod p_i^b (1-p_i)  100,000 Bernoulli draws
- P_quantum = 17.84%                  P_exact = 17.22%                    P_MC = 17.26%
- (Z-score = 1.63 sigma)
+ P_quantum = 19.31%                  P_exact = 18.68%                    P_MC = 18.77%
+ (Z-score = 1.62 sigma)
 ```
 
 ### Stage 1: Subscription Prediction
@@ -120,10 +120,11 @@ where theta_i = 2 * arcsin(sqrt(p_i))
   $$H_C = \sum_{i} h_i Z_i + \sum_{i < j} J_{ij} Z_i Z_j + \text{const}$$
 - **QAOA Circuit:** Built with $p=2$ alternating layers of problem unitary $e^{-i \gamma H_C}$ and mixer unitary $e^{-i \beta H_M}$ ($H_M = \sum X_i$). Optimized using COBYLA over 150 iterations.
 - **Decoding & Classical Benchmark:** Measured bitstrings decoded from `AerSimulator` (10,000 shots). Evaluated against the brute-force enumeration of all $\binom{10}{6} = 210$ combinations:
-  - Both Classical and QAOA converge on the **exact same combination**: `['C0322', 'C0345', 'C0205', 'C0139', 'C0252', 'C0258']`.
-  - Optimality gap: **0.000000**.
-  - Budget: 12.0 / 25.0 units.
-  - Capacity: 12.0 / 22.0 units.
+  - QAOA selects: `['C0170', 'C0327', 'C0205', 'C0372', 'C0272', 'C0005']` ($Z = \$28.46$).
+  - Classical brute-force optimum: `['C0170', 'C0327', 'C0205', 'C0053', 'C0372', 'C0272']` ($Z^* = \$28.78$).
+  - Optimality gap: **0.3231** (1.12% relative gap; near-optimal solution).
+  - Budget: 10.0 / 25.0 units.
+  - Capacity: 13.0 / 22.0 units.
 
 ### Stage 3: Campaign Outcome Quantum Simulation
 - **Quantum Register:** 6 qubits initialized in $|0\rangle^{\otimes 6}$.
@@ -139,13 +140,13 @@ where theta_i = 2 * arcsin(sqrt(p_i))
   - Two-Qubit Gates: 0
   - SWAP Gates: 0
 - **Simulation Results:**
-  - **Exact Poisson Binomial:** $P_{\text{exact}}(\ge 3) = 0.172233$ (17.22%)
-  - **Noiseless Quantum Estimate (10k shots):** $P_{\text{quantum}} = 0.178400$ (17.84%), $\Delta = 0.006167$
-  - **Noisy Quantum Estimate (Unmitigated):** $0.181500$, $\Delta = 0.009267$
-  - **Noisy Quantum Estimate (Mitigated):** $0.177941$, $\Delta = 0.005708$
-  - **Classical Monte Carlo (100k trials):** $P_{\text{MC}} = 0.172620$, $\Delta = 0.000387$
-  - **Theoretical Shot Noise Standard Error:** $\sigma = \sqrt{\frac{p(1-p)}{S}} = \sqrt{\frac{0.1722 \cdot 0.8278}{10000}} = 0.003776$
-  - **Statistical Consistency:** Quantum Z-score = $1.63\sigma$ ($< 2.0\sigma$), proving statistical agreement with quantum projection noise.
+  - **Exact Poisson Binomial:** $P_{\text{exact}}(\ge 3) = 0.186801$ (18.68%)
+  - **Noiseless Quantum Estimate (10k shots):** $P_{\text{quantum}} = 0.193100$ (19.31%), $\Delta = 0.006299$
+  - **Noisy Quantum Estimate (Unmitigated):** $0.196600$, $\Delta = 0.009799$
+  - **Noisy Quantum Estimate (Mitigated):** $0.192745$, $\Delta = 0.005944$
+  - **Classical Monte Carlo (100k trials):** $P_{\text{MC}} = 0.187700$, $\Delta = 0.000899$
+  - **Theoretical Shot Noise Standard Error:** $\sigma = \sqrt{\frac{p(1-p)}{S}} = \sqrt{\frac{0.1868 \cdot 0.8132}{10000}} = 0.003898$
+  - **Statistical Consistency:** Quantum Z-score = $1.62\sigma$ ($< 2.0\sigma$), proving statistical agreement with quantum projection noise.
 
 ---
 
@@ -191,6 +192,6 @@ python -m pytest tests/test_pipeline.py
 
 ### Strategic Business Recommendations
 1. **Targeted Deployment:** Rather than contacting all 100 prospects (cost: \$250, exceeding budget tenfold) or contacting based strictly on probability rank (which selects expensive, high-capacity customers), the **Vortex Stage 2 portfolio** yields an optimal balance:
-   - Total campaign cost is only **12.0 units** (leaving 52% of budget in reserve).
-   - Expected net campaign gain is **\$26.85**.
-2. **Conversion Risk Hedging:** The bank can be **82.78% confident** that fewer than 3 customers will convert, but there is a **17.22% probability** of achieving $\ge 3$ subscriptions. By reserving the remaining 13 units of budget, the bank can stage a follow-up secondary marketing wave if early conversion tracking detects underperformance.
+   - Total campaign cost is only **10.0 units** (leaving 60% of budget in reserve).
+   - Expected net campaign gain is **\$28.46** (with classical upper bound of \$28.78).
+2. **Conversion Risk Hedging:** The bank can be **81.32% confident** that fewer than 3 customers will convert, but there is an **18.68% probability** of achieving $\ge 3$ subscriptions. By reserving the remaining 15 units of budget, the bank can stage a follow-up secondary marketing wave if early conversion tracking detects underperformance.

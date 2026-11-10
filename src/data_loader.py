@@ -14,7 +14,7 @@ def load_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict[str, 
     
     Returns:
         train_df: DataFrame of 300 labeled training customers
-        test_df: DataFrame of 100 test customers with resolved customer_ids
+        test_df: DataFrame of 100 test customers with customer_ids
         stage2_df: DataFrame of 400 customer operational parameters
         constraints: Dictionary of Stage 2 operational constraints
     """
@@ -33,17 +33,18 @@ def load_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict[str, 
     assert len(test_df) == 100, f"Expected 100 test records, got {len(test_df)}"
     assert len(stage2_df) == 400, f"Expected 400 Stage2 operational records, got {len(stage2_df)}"
 
-    # Resolve customer IDs for Stage1_Test:
-    # 300 IDs belong to Stage1_Train; the remaining 100 IDs from the 400 in Stage2_Data belong to Stage1_Test
     train_ids = set(train_df[ID_COL])
-    remaining_ids = [cid for cid in stage2_df[ID_COL] if cid not in train_ids]
-    assert len(remaining_ids) == 100, f"Expected exactly 100 test IDs, got {len(remaining_ids)}"
+    remaining_ids = set(stage2_df[ID_COL]) - train_ids
+    assert len(remaining_ids) == 100, f"Expected exactly 100 remaining IDs, got {len(remaining_ids)}"
 
     if ID_COL not in test_df.columns:
-        test_df[ID_COL] = remaining_ids
+        # Fallback assignment if customer_id was omitted
+        sorted_remaining = [cid for cid in stage2_df[ID_COL] if cid not in train_ids]
+        test_df[ID_COL] = sorted_remaining
     else:
-        # Check alignment
-        assert list(test_df[ID_COL]) == remaining_ids, "Test customer IDs do not match expected Stage2 remaining IDs"
+        # Validate that the official test customer IDs match the expected remaining Stage2 IDs
+        assert set(test_df[ID_COL]) == remaining_ids, "Test customer IDs do not match remaining Stage2 IDs"
+        assert len(test_df[ID_COL].unique()) == 100, "Duplicate customer IDs found in test set"
 
     # Extract constraints into a convenient dictionary
     constraints = {}
