@@ -102,10 +102,18 @@ where theta_i = 2 * arcsin(sqrt(p_i))
 - **Preprocessing:** All continuous features (`age`, `balance`, `day`, `campaign`, `pdays`, `previous`) are standardized using `StandardScaler`. Categorical features (`job`, `marital`, `education`, `default`, `housing`, `loan`, `contact`, `month`, `poutcome`) are encoded using `OneHotEncoder(handle_unknown='ignore')`. **Fitted strictly on training data**.
 - **Classical Model:** Balanced-weight Logistic Regression coupled with Platt sigmoid calibration (`CalibratedClassifierCV`) to ensure well-behaved, continuous probability scores between 0 and 1.
 - **Quantum Model:** Quantum Kernel Classifier (QSVC). Dimensionality is reduced to 4 principal components via PCA. A Qiskit `ZZFeatureMap(feature_dimension=4, reps=2, entanglement='linear')` embeds each sample $x \in \mathbb{R}^4$ into a 16-dimensional complex Hilbert space:
-  $$|\phi(x)\rangle = U_{\Phi(x)} |0\rangle^{\otimes 4}$$
-  The quantum fidelity kernel matrix is computed via statevector overlaps:
-  $$K_{ij} = |\langle \phi(x_i) | \phi(x_j) \rangle|^2$$
-  Trained with a Support Vector Classifier and calibrated with Platt scaling.
+
+$$
+|\phi(x)\rangle = U_{\Phi(x)} |0\rangle^{\otimes 4}
+$$
+
+The quantum fidelity kernel matrix is computed via statevector overlaps:
+
+$$
+K_{ij} = |\langle \phi(x_i) | \phi(x_j) \rangle|^2
+$$
+
+Trained with a Support Vector Classifier and calibrated with Platt scaling.
 - **5-Fold Stratified Cross-Validation:**
   - Classical Baseline: ROC-AUC = 0.6485, PR-AUC = 0.2553, Precision@10 = 0.1800, Recall@10 = 0.2571, Brier Score = 0.2026.
   - Quantum Kernel QSVC: ROC-AUC = 0.4916, PR-AUC = 0.1803, Precision@10 = 0.0600, Recall@10 = 0.0857, Brier Score = 0.1429.
@@ -114,10 +122,18 @@ where theta_i = 2 * arcsin(sqrt(p_i))
 ### Stage 2: Constrained Customer Selection
 - **Operational Data:** Merged top 10 candidates with `Stage2_Data` to compute Expected Net Value $V_i = p_i \cdot \text{deposit}_i - \text{cost}_i$.
 - **QUBO Formulation:**
-  $$\min_{x \in \{0, 1\}^{10}} H(x) = -\sum_{i=0}^9 V_i x_i + P_k \left(\sum_{i=0}^9 x_i - 6\right)^2 + P_{\text{cost}} \max\left(0, \sum c_i x_i - 25\right)^2 + P_{\text{cap}} \max\left(0, \sum h_i x_i - 22\right)^2$$
+
+$$
+\min_{x \in \{0, 1\}^{10}} H(x) = -\sum_{i=0}^9 V_i x_i + P_k \left(\sum_{i=0}^9 x_i - 6\right)^2 + P_{\text{cost}} \max\left(0, \sum c_i x_i - 25\right)^2 + P_{\text{cap}} \max\left(0, \sum h_i x_i - 22\right)^2
+$$
+
 - **Ising Mapping:**
   Using $x_i = \frac{1 - Z_i}{2}$ where $Z_i \in \{+1, -1\}$:
-  $$H_C = \sum_{i} h_i Z_i + \sum_{i < j} J_{ij} Z_i Z_j + \text{const}$$
+
+$$
+H_C = \sum_{i} h_i Z_i + \sum_{i \lt j} J_{ij} Z_i Z_j + \text{const}
+$$
+
 - **QAOA Circuit:** Built with $p=2$ alternating layers of problem unitary $e^{-i \gamma H_C}$ and mixer unitary $e^{-i \beta H_M}$ ($H_M = \sum X_i$). Optimized using COBYLA over 150 iterations.
 - **Decoding & Classical Benchmark:** Measured bitstrings decoded from `AerSimulator` (10,000 shots). Evaluated against the brute-force enumeration of all $\binom{10}{6} = 210$ combinations:
   - QAOA selects: `['C0170', 'C0327', 'C0205', 'C0372', 'C0272', 'C0005']` ($Z = \$28.46$).
@@ -129,8 +145,12 @@ where theta_i = 2 * arcsin(sqrt(p_i))
 ### Stage 3: Campaign Outcome Quantum Simulation
 - **Quantum Register:** 6 qubits initialized in $|0\rangle^{\otimes 6}$.
 - **Amplitude Encoding:** Qubit $i$ rotated by $R_y(\theta_i)$ with $\theta_i = 2 \arcsin(\sqrt{p_i})$:
-  $$R_y(\theta_i)|0\rangle = \cos(\theta_i/2)|0\rangle + \sin(\theta_i/2)|1\rangle = \sqrt{1 - p_i}|0\rangle + \sqrt{p_i}|1\rangle$$
-  Measuring qubit $i$ in computational basis yields 1 with exact probability $p_i$.
+
+$$
+R_y(\theta_i)|0\rangle = \cos(\theta_i/2)|0\rangle + \sin(\theta_i/2)|1\rangle = \sqrt{1 - p_i}|0\rangle + \sqrt{p_i}|1\rangle
+$$
+
+Measuring qubit $i$ in computational basis yields 1 with exact probability $p_i$.
 - **Circuit Transpilation Metrics:**
   - Logical Qubits: 6
   - Physical Qubits: 6
