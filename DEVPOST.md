@@ -81,14 +81,15 @@ To guarantee mathematical integrity and adhere strictly to hackathon rules, all 
   We trained a Support Vector Classifier on $K$ and calibrated decision boundaries with Platt scaling.
 * **5-Fold Stratified Cross-Validation Benchmark:**
 
-  | Metric | Classical Baseline | Quantum Kernel QSVC |
-  | :--- | :---: | :---: |
-  | **ROC-AUC** | 0.6485 | 0.4916 |
-  | **PR-AUC (Average Precision)** | 0.2553 | 0.1803 |
-  | **Precision@10** | 0.1800 | 0.0600 |
-  | **Recall@10** | 0.2571 | 0.0857 |
-  | **Brier Score (lower is better)** | 0.2026 | 0.1429 |
-  | **Log Loss** | 0.5957 | 0.6000 |
+| Metric | Classical Baseline | Quantum Kernel QSVC |
+| :--- | :---: | :---: |
+| **ROC-AUC** | 0.6485 | 0.4916 |
+| **PR-AUC (Average Precision)** | 0.2553 | 0.1803 |
+| **Precision@10** | 0.1800 | 0.0600 |
+| **Recall@10** | 0.2571 | 0.0857 |
+| **Brier Score (lower is better)** | 0.2026 | 0.1429 |
+| **Log Loss** | 0.5957 | 0.6000 |
+
 * **Hybrid Ensembling:** We combined the quantum kernel Hilbert space representations with the linear baseline ($w_{\text{quantum}} = 0.35, w_{\text{classical}} = 0.65$), yielding well-calibrated continuous probabilities that accurately reflect the 11% empirical positive class rate.
 
 ### 2. Stage 2: Constrained QAOA Optimization & Classical Brute Force
