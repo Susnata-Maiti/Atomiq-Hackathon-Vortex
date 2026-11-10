@@ -12,6 +12,13 @@ from src.config import (
     STAGE1_RESULT_PATH,
     STAGE2_RESULT_PATH,
     STAGE3_RESULT_PATH,
+    STAGE1_PREDICTIONS_PATH,
+    STAGE2_SELECTION_PATH,
+    STAGE3_SIMULATION_PATH,
+    STAGE1_PREDICTIONS_JSON,
+    STAGE2_SELECTION_JSON,
+    STAGE3_SIMULATION_JSON,
+    BASE_DIR,
     BUDGET_LIMIT,
     CAPACITY_LIMIT,
     EXACT_SELECTION_K,
@@ -95,3 +102,38 @@ def test_stage3_simulation_validity():
     assert 0.0 <= p_quant <= 1.0
     # Quantum estimate must be within 3 sigma of exact solution
     assert abs(p_quant - p_exact) < 3.0 * sigma + 1e-4
+
+
+def test_checkpoint_files_and_license():
+    """
+    Validates Hackathon Submission Checkpoints 1, 2, and 3:
+    - Root-level result files exist with both naming conventions (CSV + JSON)
+    - Open source LICENSE exists
+    - requirements.txt manifest exists
+    """
+    # Checkpoint 1
+    assert (BASE_DIR / "LICENSE").exists(), "Root-level LICENSE missing"
+    assert (BASE_DIR / "requirements.txt").exists(), "Root-level requirements.txt missing"
+    assert (BASE_DIR / "README.md").exists(), "Root-level README.md missing"
+
+    # Checkpoint 2
+    assert STAGE1_PREDICTIONS_PATH.exists(), "stage1_predictions.csv missing"
+    assert STAGE2_SELECTION_PATH.exists(), "stage2_selection.csv missing"
+    assert STAGE3_SIMULATION_PATH.exists(), "stage3_simulation.csv missing"
+
+    assert STAGE1_PREDICTIONS_JSON.exists(), "stage1_predictions.json missing"
+    assert STAGE2_SELECTION_JSON.exists(), "stage2_selection.json missing"
+    assert STAGE3_SIMULATION_JSON.exists(), "stage3_simulation.json missing"
+
+    # Verify identical data between naming conventions
+    df1_orig = pd.read_csv(STAGE1_RESULT_PATH)
+    df1_pred = pd.read_csv(STAGE1_PREDICTIONS_PATH)
+    pd.testing.assert_frame_equal(df1_orig, df1_pred)
+
+    df2_orig = pd.read_csv(STAGE2_RESULT_PATH)
+    df2_sel = pd.read_csv(STAGE2_SELECTION_PATH)
+    pd.testing.assert_frame_equal(df2_orig, df2_sel)
+
+    df3_orig = pd.read_csv(STAGE3_RESULT_PATH)
+    df3_sim = pd.read_csv(STAGE3_SIMULATION_PATH)
+    pd.testing.assert_frame_equal(df3_orig, df3_sim)

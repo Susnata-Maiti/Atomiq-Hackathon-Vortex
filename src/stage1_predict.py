@@ -32,6 +32,8 @@ from .config import (
     TARGET_COL,
     ID_COL,
     STAGE1_RESULT_PATH,
+    STAGE1_PREDICTIONS_PATH,
+    STAGE1_PREDICTIONS_JSON,
     QUANTUM_KERNEL_N_QUBITS,
     QUANTUM_KERNEL_REPS,
 )
@@ -265,10 +267,12 @@ def run_stage1_prediction(
     result_df["rank"] = np.arange(1, len(result_df) + 1)
     result_df["top_10"] = result_df["rank"] <= 10
 
-    # Save required stage1_result.csv format
+    # Save required stage1_result.csv and stage1_predictions.csv/json
     submission_s1 = result_df[[ID_COL, "predicted_probability", "rank", "top_10"]].copy()
     submission_s1.to_csv(STAGE1_RESULT_PATH, index=False)
-    print(f"\n[OK] Successfully generated {STAGE1_RESULT_PATH} with {len(submission_s1)} test customers.")
+    submission_s1.to_csv(STAGE1_PREDICTIONS_PATH, index=False)
+    submission_s1.to_json(STAGE1_PREDICTIONS_JSON, orient="records", indent=2)
+    print(f"\n[OK] Successfully generated {STAGE1_RESULT_PATH} and {STAGE1_PREDICTIONS_PATH} with {len(submission_s1)} test customers.")
 
     top_10_df = result_df[result_df["top_10"]].copy().reset_index(drop=True)
     print("\n--- Top 10 Stage 2 Candidates ---")

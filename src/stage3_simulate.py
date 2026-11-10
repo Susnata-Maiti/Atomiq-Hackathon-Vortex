@@ -21,6 +21,8 @@ from .config import (
     MONTE_CARLO_TRIALS,
     MONTE_CARLO_SEED,
     STAGE3_RESULT_PATH,
+    STAGE3_SIMULATION_PATH,
+    STAGE3_SIMULATION_JSON,
     ID_COL,
 )
 
@@ -233,7 +235,9 @@ def run_stage3_simulation(
 
     s3_result_df = pd.DataFrame(stage3_rows)
     s3_result_df.to_csv(STAGE3_RESULT_PATH, index=False)
-    print(f"\n[OK] Successfully generated {STAGE3_RESULT_PATH} with complete quantum simulation metrics.")
+    s3_result_df.to_csv(STAGE3_SIMULATION_PATH, index=False)
+    s3_result_df.to_json(STAGE3_SIMULATION_JSON, orient="records", indent=2)
+    print(f"\n[OK] Successfully generated {STAGE3_RESULT_PATH} and {STAGE3_SIMULATION_PATH} with complete quantum simulation metrics.")
 
     summary = {
         "p_exact": p_exact,

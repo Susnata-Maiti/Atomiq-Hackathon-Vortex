@@ -13,6 +13,15 @@ STAGE1_RESULT_PATH = BASE_DIR / "stage1_result.csv"
 STAGE2_RESULT_PATH = BASE_DIR / "stage2_result.csv"
 STAGE3_RESULT_PATH = BASE_DIR / "stage3_result.csv"
 
+# Official Alternative File Names (Hackathon Checkpoint 2 Specifications)
+STAGE1_PREDICTIONS_PATH = BASE_DIR / "stage1_predictions.csv"
+STAGE2_SELECTION_PATH = BASE_DIR / "stage2_selection.csv"
+STAGE3_SIMULATION_PATH = BASE_DIR / "stage3_simulation.csv"
+
+STAGE1_PREDICTIONS_JSON = BASE_DIR / "stage1_predictions.json"
+STAGE2_SELECTION_JSON = BASE_DIR / "stage2_selection.json"
+STAGE3_SIMULATION_JSON = BASE_DIR / "stage3_simulation.json"
+
 # Global Reproducibility Seeds
 RANDOM_SEED = 42
 OPTIMIZER_SEED = 42

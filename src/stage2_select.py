@@ -28,6 +28,8 @@ from .config import (
     OPTIMIZER_SEED,
     TRANSPILER_SEED,
     STAGE2_RESULT_PATH,
+    STAGE2_SELECTION_PATH,
+    STAGE2_SELECTION_JSON,
     ID_COL,
 )
 
@@ -362,6 +364,8 @@ def run_stage2_selection(
 
     s2_result_df = pd.DataFrame(out_rows)
     s2_result_df.to_csv(STAGE2_RESULT_PATH, index=False)
-    print(f"\n[OK] Successfully generated {STAGE2_RESULT_PATH} with candidate selection.")
+    s2_result_df.to_csv(STAGE2_SELECTION_PATH, index=False)
+    s2_result_df.to_json(STAGE2_SELECTION_JSON, orient="records", indent=2)
+    print(f"\n[OK] Successfully generated {STAGE2_RESULT_PATH} and {STAGE2_SELECTION_PATH} with candidate selection.")
 
     return candidates, classical_sol, qaoa_sol

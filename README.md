@@ -208,10 +208,14 @@ python run_pipeline.py
 python -m pytest tests/test_pipeline.py
 ```
 
-### Result Files Generated
-1. `stage1_result.csv`: 100 rows (`customer_id`, `predicted_probability`, `rank`, `top_10`)
-2. `stage2_result.csv`: 10 rows (top 10 candidates with inputs, selection flags, budget/capacity usage, QAOA objective, classical optimum, gap)
-3. `stage3_result.csv`: 6 rows (selected IDs, qubit mapping, probabilities, angles, counts, quantum estimate, exact analytical probability, Monte Carlo probability, errors)
+### Result Files Generated (Root-Level Deliverables)
+All required deliverables are generated directly at the top level of the repository under both standard and competition-specified filenames:
+1. **Stage 1 Predictions:** [`stage1_predictions.csv`](stage1_predictions.csv) and [`stage1_result.csv`](stage1_result.csv) (100 rows: `customer_id`, `predicted_probability`, `rank`, `top_10`), plus [`stage1_predictions.json`](stage1_predictions.json).
+2. **Stage 2 Selection:** [`stage2_selection.csv`](stage2_selection.csv) and [`stage2_result.csv`](stage2_result.csv) (10 rows: top 10 candidates with inputs, selection flags, budget/capacity usage, QAOA objective, classical optimum, gap), plus [`stage2_selection.json`](stage2_selection.json).
+3. **Stage 3 Simulation:** [`stage3_simulation.csv`](stage3_simulation.csv) and [`stage3_result.csv`](stage3_result.csv) (6 rows: selected IDs, qubit mapping, probabilities, angles, counts, quantum estimate, exact analytical probability, Monte Carlo probability, errors), plus [`stage3_simulation.json`](stage3_simulation.json).
+
+### License
+This project is open-source under the [MIT License](LICENSE).
 
 ---
 
