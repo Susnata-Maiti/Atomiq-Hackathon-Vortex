@@ -57,11 +57,11 @@ Our vision was to create a production-grade algorithmic decision engine that dem
 * **Stage 2 Final 6 Selected Customers:** **`C0170, C0327, C0205, C0372, C0272, C0005`**.
 * **Budget Consumed:** **10.0 / 25.0 units** (leaving 60% of budget in reserve).
 * **Capacity Consumed:** **13.0 / 22.0 units** (well within branch capacity).
-* **Expected Net Campaign Value:** **$28.46** (Classical Brute-Force Global Optimum: **$28.78**; **Optimality Gap:** 0.3231, a 1.12% relative gap).
-* **Stage 3 Exact Conversion Probability** \\(P(\ge 3)\\): **18.6801%** (exact Poisson binomial reference).
-* **Stage 3 Quantum Estimate (Ideal Noiseless):** **19.3100%** (\\(\Delta = 0.006299\\), within \\(1.62\sigma\\) shot noise).
-* **Stage 3 Quantum Estimate (Noisy Mitigated):** **19.2745%** (\\(\Delta = 0.005944\\)).
-* **Stage 3 Classical Monte Carlo (100k Trials):** **18.7700%** (\\(\Delta = 0.000899\\)).
+* **Expected Net Campaign Value:** **\$28.46** (Classical Brute-Force Global Optimum: **\$28.78**; **Optimality Gap:** 0.3231, a 1.12% relative gap).
+* **Stage 3 Exact Conversion Probability** `P(≥3)`: **18.6801%** (exact Poisson binomial reference).
+* **Stage 3 Quantum Estimate (Ideal Noiseless):** **19.3100%** (`Δ = 0.006299`, within `1.62σ` shot noise).
+* **Stage 3 Quantum Estimate (Noisy Mitigated):** **19.2745%** (`Δ = 0.005944`).
+* **Stage 3 Classical Monte Carlo (100k Trials):** **18.7700%** (`Δ = 0.000899`).
 
 ---
 
@@ -74,7 +74,7 @@ Vortex was built with **Python 3.14**, **Qiskit 2.6.2**, **Qiskit Aer 0.18.2**, 
 To guarantee mathematical integrity and adhere strictly to hackathon rules, all feature transformations (StandardScaler for 6 numerical attributes and OneHotEncoder for 9 categorical attributes) were fitted **strictly on the training data** across every cross-validation fold to prevent data leakage.
 
 * **Classical Baseline:** A class-weighted Logistic Regression regularized with an L2 penalty, combined with Platt sigmoid probability calibration (`CalibratedClassifierCV(cv=5)`).
-* **Quantum Kernel Classifier (QSVC):** High-dimensional feature maps project classical data into a Hilbert space where nonlinear boundaries can become linearly separable. We projected the 28 preprocessed features down to 4 principal components using PCA, scaled them to \\([0, \pi]\\), and applied Qiskit's `ZZFeatureMap(feature_dimension=4, reps=2, entanglement='linear')`:
+* **Quantum Kernel Classifier (QSVC):** High-dimensional feature maps project classical data into a Hilbert space where nonlinear boundaries can become linearly separable. We projected the 28 preprocessed features down to 4 principal components using PCA, scaled them to `[0, π]`, and applied Qiskit's `ZZFeatureMap(feature_dimension=4, reps=2, entanglement='linear')`:
 
 $$
 |\phi(x)\rangle = U_{\Phi(x)} |0\rangle^{\otimes 4} = \prod_{d} \exp\left(i \sum_{j} x_j Z_j + \sum_{j < k} (\pi - x_j)(\pi - x_k) Z_j Z_k \right) H^{\otimes 4} |0\rangle^{\otimes 4}
@@ -86,9 +86,9 @@ $$
 K_{ij} = |\langle \phi(x_i) | \phi(x_j) \rangle|^2
 $$
 
-We trained a Support Vector Classifier on \\(K\\) and calibrated decision boundaries with Platt scaling.
+We trained a Support Vector Classifier on the kernel matrix `K` and calibrated decision boundaries with Platt scaling.
 
-* **Hybrid Ensembling:** We combined the quantum kernel Hilbert space representations with the linear baseline (\\(w_{\text{quantum}} = 0.35\\), \\(w_{\text{classical}} = 0.65\\)), yielding well-calibrated continuous probabilities that reflect the 11% empirical positive class rate.
+* **Hybrid Ensembling:** We combined the quantum kernel Hilbert space representations with the linear baseline (`w_quantum = 0.35`, `w_classical = 0.65`), yielding well-calibrated continuous probabilities that reflect the 11% empirical positive class rate.
 
 #### 5-Fold Stratified Cross-Validation Benchmark
 
@@ -105,54 +105,54 @@ The classical baseline is the stronger ranker on this small 300-customer trainin
 
 ### 2. Stage 2: Constrained QAOA Optimization & Classical Brute Force
 
-With \\(N = 10\\) candidates, the bank must select exactly \\(K = 6\\) customers to maximize expected net value while satisfying total contact cost \\(\le 25\\) and operational capacity \\(\le 22\\).
+With `N = 10` candidates, the bank must select exactly `K = 6` customers to maximize expected net value while satisfying total contact cost `≤ 25` and operational capacity `≤ 22`.
 
-* **QUBO Minimization Formulation:** With \\(V_i = p_i d_i - c_i\\) and penalty weights \\(P_k = 18.0\\), \\(P_{\text{cost}} = 2.5\\), \\(P_{\text{cap}} = 2.5\\):
+* **QUBO Minimization Formulation:** With `V_i = p_i·d_i − c_i` and penalty weights `P_k = 18.0`, `P_cost = 2.5`, `P_cap = 2.5`:
 
 $$
 \min_{x \in \{0, 1\}^{10}} H_{\text{QUBO}}(x) = -\sum_{i=0}^{9} V_i x_i + P_k \left(\sum_{i=0}^{9} x_i - 6\right)^2 + P_{\text{cost}} \left[\max\left(0, \sum_{i=0}^{9} c_i x_i - 25\right)\right]^2 + P_{\text{cap}} \left[\max\left(0, \sum_{i=0}^{9} h_i x_i - 22\right)\right]^2
 $$
 
-* **Ising Spin Mapping:** Using the change of variables \\(x_i = \frac{1 - Z_i}{2}\\), where \\(Z_i \in \{+1, -1\}\\) are Pauli-\\(Z\\) operators:
+* **Ising Spin Mapping:** Using the change of variables `x_i = (1 − Z_i) / 2`, where `Z_i ∈ {+1, −1}` are Pauli-Z operators:
 
 $$
 H_C = \sum_{i=0}^{9} h_i Z_i + \sum_{i < j} J_{ij} Z_i Z_j + \text{offset}
 $$
 
-* **QAOA Circuit & Variational Optimization:** We implemented a 10-qubit, \\(p=2\\) layer QAOA state preparation circuit:
+* **QAOA Circuit & Variational Optimization:** We implemented a 10-qubit, `p = 2` layer QAOA state preparation circuit:
 
 $$
 |\gamma, \beta\rangle = \prod_{l=1}^{p} \left( e^{-i \beta_l \sum_i X_i} e^{-i \gamma_l H_C} \right) |+\rangle^{\otimes 10}
 $$
 
-The variational parameters \\(\vec{\gamma}, \vec{\beta}\\) were optimized using SciPy's COBYLA over 150 iterations on `AerSimulator`.
+The variational parameters `γ` and `β` were optimized using SciPy's COBYLA over 150 iterations on `AerSimulator`.
 
-* **Verification Against Classical Optimum:** We evaluated all \\(\binom{10}{6} = 210\\) combinations by exhaustive classical search. QAOA converged to a high-value feasible portfolio:
+* **Verification Against Classical Optimum:** We evaluated all `C(10, 6) = 210` combinations by exhaustive classical search. QAOA converged to a high-value feasible portfolio:
 
 $$
 x^* = (1, 0, 0, 1, 1, 0, 1, 0, 1, 1) \implies \{\text{C0170, C0327, C0205, C0372, C0272, C0005}\}
 $$
 
-This yields an expected net value of **$28.46** against the classical brute-force upper bound of **$28.78** (an **optimality gap of just 0.3231**, or 1.12% relative), while strictly maintaining feasibility (Budget: 10/25, Capacity: 13/22).
+This yields an expected net value of **\$28.46** against the classical brute-force upper bound of **\$28.78** (an **optimality gap of just 0.3231**, or 1.12% relative), while strictly maintaining feasibility (Budget: 10/25, Capacity: 13/22).
 
 ### 3. Stage 3: Amplitude-Encoded Quantum Risk Simulation
 
-For the 6 chosen customers, we simulated the probability that at least 3 subscribe (\\(w(b) \ge 3\\)).
+For the 6 chosen customers, we simulated the probability that at least 3 subscribe (`w(b) ≥ 3`).
 
-* **Quantum Amplitude Encoding:** Instead of expensive multi-qubit adder circuits, we initialized a 6-qubit register in \\(|0\rangle^{\otimes 6}\\) and applied single-qubit \\(R_y(\theta_i)\\) rotations with angles \\(\theta_i = 2 \arcsin(\sqrt{p_i})\\):
+* **Quantum Amplitude Encoding:** Instead of expensive multi-qubit adder circuits, we initialized a 6-qubit register in `|0⟩^⊗6` and applied single-qubit `Ry(θ_i)` rotations with angles `θ_i = 2·arcsin(√p_i)`:
 
 $$
 R_y(\theta_i) |0\rangle = \cos(\theta_i/2)|0\rangle + \sin(\theta_i/2)|1\rangle = \sqrt{1 - p_i}|0\rangle + \sqrt{p_i}|1\rangle
 $$
 
-Measuring qubit \\(i\\) in the computational basis yields state \\(|1\rangle\\) with exact probability \\(p_i\\).
+Measuring qubit `i` in the computational basis yields state `|1⟩` with exact probability `p_i`.
 
 * **Transpilation Metrics:**
   * Logical & Physical Qubits: 6
-  * Original & Transpiled Circuit Depth: 2 (1 layer of \\(R_y\\) gates + 1 measurement layer)
-  * Gate Counts: 6 single-qubit \\(R_y\\) gates, 0 two-qubit gates, 0 SWAP gates
+  * Original & Transpiled Circuit Depth: 2 (1 layer of `Ry` gates + 1 measurement layer)
+  * Gate Counts: 6 single-qubit `Ry` gates, 0 two-qubit gates, 0 SWAP gates
 
-* **Simulation & Readout Error Mitigation:** We measured 10,000 shots on `AerSimulator`. In addition to ideal noiseless simulation, we constructed a realistic NISQ noise model (single-qubit depolarizing error \\(\lambda = 0.001\\) and asymmetric readout error \\(P(0|1)=0.02\\), \\(P(1|0)=0.01\\)). Readout mitigation reduced the noisy estimation bias from \\(+0.98\%\\) down to \\(+0.59\%\\).
+* **Simulation & Readout Error Mitigation:** We measured 10,000 shots on `AerSimulator`. In addition to ideal noiseless simulation, we constructed a realistic NISQ noise model (single-qubit depolarizing error `λ = 0.001` and asymmetric readout error `P(0|1) = 0.02`, `P(1|0) = 0.01`). Readout mitigation reduced the noisy estimation bias from +0.98% down to +0.59%.
 
 * **Analytical Benchmark:** We computed the exact analytical probability using the Poisson Binomial distribution, summing over all 64 basis states:
 
@@ -160,13 +160,13 @@ $$
 P_{\text{exact}}(\ge 3) = \sum_{b \in \{0, 1\}^6 : \sum_i b_i \ge 3} \prod_{i=0}^{5} p_i^{b_i} (1 - p_i)^{1 - b_i} = 18.6801\%
 $$
 
-The ideal quantum simulation yielded **19.3100%**, differing by just \\(0.006299\\). With theoretical shot-noise standard deviation
+The ideal quantum simulation yielded **19.3100%**, differing by just `0.006299`. With theoretical shot-noise standard deviation
 
 $$
 \sigma = \sqrt{\frac{p(1-p)}{S}} = 0.003898,
 $$
 
-the error corresponds to a Z-score of **\\(1.62\sigma\\)**, consistent with quantum projection noise.
+the error corresponds to a Z-score of **1.62σ**, consistent with quantum projection noise.
 
 ---
 
@@ -174,7 +174,7 @@ the error corresponds to a Z-score of **\\(1.62\sigma\\)**, consistent with quan
 
 1. **Test Set Customer ID Alignment & Traceability:** In the challenge workbook, `Stage1_Test` was released with explicit `customer_id` tracking (`C0231, C0345, ...`), which cross-references `Stage2_Data` and `Stage1_Train`. We adapted our ingestion pipeline to automatically detect, validate, and bind these official IDs end-to-end across prediction, optimization, and quantum simulation without index loss.
 
-2. **Cardinality and Multi-Constraint QUBO Balancing:** Mapping an exact equality constraint (\\(\sum x_i = 6\\)) alongside two inequality constraints (\\(\sum c_i x_i \le 25\\) and \\(\sum h_i x_i \le 22\\)) to an Ising Hamiltonian is notoriously difficult: if penalty coefficients are too low, the solver returns invalid bitstrings; if too high, the problem Hamiltonian is dominated by penalties, obscuring the objective. We derived an exact expansion for the cardinality penalty:
+2. **Cardinality and Multi-Constraint QUBO Balancing:** Mapping an exact equality constraint (`Σ x_i = 6`) alongside two inequality constraints (`Σ c_i x_i ≤ 25` and `Σ h_i x_i ≤ 22`) to an Ising Hamiltonian is notoriously difficult: if penalty coefficients are too low, the solver returns invalid bitstrings; if too high, the problem Hamiltonian is dominated by penalties, obscuring the objective. We derived an exact expansion for the cardinality penalty:
 
 $$
 \left(\sum_{i=0}^{9} x_i - 6\right)^2 = -11 \sum_{i=0}^{9} x_i + 2 \sum_{i < j} x_i x_j + 36
@@ -182,7 +182,7 @@ $$
 
 and calibrated the linear penalty slacks, ensuring QAOA sampled feasible 6-customer configurations with high probability.
 
-3. **Bitstring Endianness in Qiskit:** Qiskit indexes classical bitstrings in reverse order (\\(q_{n-1} q_{n-2} \dots q_0\\)), whereas business arrays follow index order (\\(q_0 \dots q_{n-1}\\)). We implemented strict bit-reversal transformations in our decoders to avoid inverted customer mappings.
+3. **Bitstring Endianness in Qiskit:** Qiskit indexes classical bitstrings in reverse order (`q_(n−1) ... q_1 q_0`), whereas business arrays follow index order (`q_0 ... q_(n−1)`). We implemented strict bit-reversal transformations in our decoders to avoid inverted customer mappings.
 
 ---
 
@@ -197,7 +197,7 @@ and calibrated the linear penalty slacks, ensuring QAOA sampled feasible 6-custo
 
 ## What We Learned
 
-* **Amplitude Encoding vs. Arithmetic Quantum Circuits:** Preparing independent Bernoulli probabilities directly via single-qubit rotations \\(R_y(2 \arcsin(\sqrt{p_i}))\\) enables shallow, NISQ-friendly depth-2 circuits that completely avoid noisy multi-qubit adder gates.
+* **Amplitude Encoding vs. Arithmetic Quantum Circuits:** Preparing independent Bernoulli probabilities directly via single-qubit rotations `Ry(2·arcsin(√p_i))` enables shallow, NISQ-friendly depth-2 circuits that completely avoid noisy multi-qubit adder gates.
 * **Probability Calibration is Essential for QML:** Quantum kernel classifiers naturally output uncalibrated SVM margins. Applying Platt sigmoid calibration is crucial before probabilities can be fed into downstream financial objective functions.
 * **Quantum-Classical Symbiosis:** Quantum algorithms excel when embedded within a hybrid workflow, leveraging classical techniques for heavy data munging and using quantum circuits for combinatorial exploration and stochastic superposition sampling.
 
@@ -206,8 +206,8 @@ and calibrated the linear penalty slacks, ensuring QAOA sampled feasible 6-custo
 ## What's Next for Vortex
 
 * **Execution on Physical IBM Quantum QPUs:** Running the Stage 3 simulation circuit on IBM Quantum hardware (e.g., `ibm_brisbane` or `ibm_kyoto`) via Qiskit Runtime `SamplerV2` with Dynamical Decoupling (DD) and Twirled Readout Error Mitigation (TREX).
-* **Subspace-Preserving XY Mixers:** Implementing a Dicke-state \\(|D^n_k\rangle\\) initialization with Givens-rotation XY mixers in QAOA to restrict the quantum walk strictly to the Hamming weight subspace \\(\sum x_i = 6\\), removing penalty tuning entirely.
-* **Multi-Product Banking Portfolios:** Expanding Vortex to joint cross-sell campaigns (term deposits, credit cards, mortgages) where customer decisions are correlated via parameterized entangling gates (\\(R_{zz}\\) or CNOTs).
+* **Subspace-Preserving XY Mixers:** Implementing a Dicke-state `|D^n_k⟩` initialization with Givens-rotation XY mixers in QAOA to restrict the quantum walk strictly to the Hamming weight subspace `Σ x_i = 6`, removing penalty tuning entirely.
+* **Multi-Product Banking Portfolios:** Expanding Vortex to joint cross-sell campaigns (term deposits, credit cards, mortgages) where customer decisions are correlated via parameterized entangling gates (`Rzz` or CNOTs).
 
 ---
 
