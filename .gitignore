@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints
+
+# Testing & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+.matplotlib_cache/
+
+# OS
+.DS_Store
+Thumbs.db
