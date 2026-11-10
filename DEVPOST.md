@@ -114,7 +114,7 @@ $$
 $$
 
 * **Ising Spin Mapping:**
-  Using the change of variables $x_i = \frac{1 - Z_i}{2}$ where $Z_i \in \{+1, -1\}$ are Pauli-$Z$ operators:
+  Using the change of variables $x_i = \frac{1 - Z_i}{2}$ where $Z_i \in \{+1, -1\}$ are Pauli-Z operators:
 
 $$
 H_C = \sum_{i=0}^9 \eta_i Z_i + \sum_{i < j} J_{ij} Z_i Z_j + \text{offset}
